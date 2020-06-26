@@ -71,14 +71,7 @@ abstract class Process(parent: Container) : Image(emptyImage) {
 
 
 
-fun Container.foto(graph:Int, x:Int ,y:Int ,size_x:Int , z:Int, flags:Int): Image {
-    return image(getImage(graph)){
-        position(x,y)
-        anchor(0.5, 0.5)
-        scale(size_x/100.0, size_x/100.0)
-        smoothing = false
-    }
-}
+
 
 fun Scene.loop(block:suspend ()->Unit){
     launchImmediately {

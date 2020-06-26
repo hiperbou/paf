@@ -34,13 +34,29 @@ class TitleScene() : SceneBase() {
 
         currentGameState = GameState()
 
-        launchImmediately {
-            with(foto(30,160,119,100,100,0)){ //llamada para crear imagen del fondo
-                loop {
-                    scaleX = 1.0
-                    delay(0.25.seconds)
-                    scaleX = -1.0
-                    delay(0.25.seconds)
+        inicio()
+    }
+
+    override suspend fun sceneDestroy() {
+        super.sceneDestroy()
+        println("Destroy")
+    }
+
+    override suspend fun sceneAfterDestroy() {
+        super.sceneAfterDestroy()
+        println("AfterDestroy")
+    }
+
+    inner class inicio:Process(sceneView) {
+        override suspend fun main() {
+            launchImmediately {
+                with(foto(30,160,119,100,100,0)){ //llamada para crear imagen del fondo
+                    loop {
+                        scaleX = 1.0
+                        delay(0.25.seconds)
+                        scaleX = -1.0
+                        delay(0.25.seconds)
+                    }
                 }
             }
 
@@ -55,22 +71,18 @@ class TitleScene() : SceneBase() {
 
             pulsaIntro()
 
-            delay(3.seconds)
+            delay(1.seconds)
             //sceneContainer.changeTo<LoadingScene>()
             //sceneContainer.changeTo<TransitionScene>()
-        }
 
-        var counter = 0
+            var counter = 0
+            var key = 0
 
-        var key = 0
+            //onKeyDown { key = key.setBits(getButtonPressed(it)) }
+            onKeyDown { key = getButtonPressed(it) }
+            onKeyUp { key = key.unsetBits(getButtonPressed(it)) }
 
-        //onKeyDown { key = key.setBits(getButtonPressed(it)) }
-        onKeyDown { key = getButtonPressed(it) }
-        onKeyUp { key = key.unsetBits(getButtonPressed(it)) }
-
-        launchImmediately {
-            delay(1.seconds)
-            while(true) {
+            loop {
                 //counter++
                 //println("this shouldn't be called in another scene $counter")
                 //delay(1.seconds)
@@ -81,16 +93,6 @@ class TitleScene() : SceneBase() {
                 frame()
             }
         }
-    }
-
-    override suspend fun sceneDestroy() {
-        super.sceneDestroy()
-        println("Destroy")
-    }
-
-    override suspend fun sceneAfterDestroy() {
-        super.sceneAfterDestroy()
-        println("AfterDestroy")
     }
 
 
