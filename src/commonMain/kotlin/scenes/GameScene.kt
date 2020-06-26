@@ -37,7 +37,7 @@ class GameScene() : SceneBase() {
         foto(31,160,120,100,100,0);     //llamada para crear imagen del fondo
         foto(9,120,224+1,100,80,0);       //llamada para crear imagen del suelo
         foto(19,284,84,100,10,0);      //llamada para crear imagen de las vidas
-        controlador(0);     //llamamos a un proceso para controlar la barra de vidas
+        controlador();     //llamamos a un proceso para controlar la barra de vidas
         foto(8,282+1,120+1,100,0,0);        //llamada para crear imagen del marcador
 
 
@@ -189,8 +189,7 @@ class GameScene() : SceneBase() {
         recordText.text = record.toString().padStart(6, '0')
     }
 
-    fun Container.bola(graph:Int, initialX:Int, initialY:Int, size_x:Int, flags:Int, anima_x:Int, anima_y:Int) = Bola(this,graph, initialX, initialY, size_x, flags, anima_x, anima_y)
-    inner class Bola(parent: Container,val initialGraph:Int, val initialX:Int, val initialY:Int, val size_x:Int, val flags:Int, val anima_x:Int, val anima_y:Int):Process(parent), ICollider {
+    inner class bola(val initialGraph:Int, val initialX:Int, val initialY:Int, val size_x:Int, val flags:Int, val anima_x:Int, val anima_y:Int):Process(sceneView), ICollider {
 
         val collider = Collider(currentGameState.ballCollision,  this)
         override var alive = collider.alive
@@ -203,7 +202,7 @@ class GameScene() : SceneBase() {
             var flags = 0
             var size_x = size_x / 100.0
             var velocidad = 0    //variable para controlar la velocidad de subida y bajada de la bola
-            var id_disp: Disparo? = null        //variable para identificar si colisiona con el disparo del prota
+            var id_disp: disparo? = null        //variable para identificar si colisiona con el disparo del prota
 
             val container = parent!!
 
@@ -372,20 +371,20 @@ class GameScene() : SceneBase() {
 
                     if (id_disp != null && id_disp!!.alive && collider.alive) {     //comprueba si la bola a colisionado con el proceso disparo
                         id_disp!!.destroy() //si ha colisionado con el disparo, borra el proceso disparo con un signal
-                        container.explota( graph + 1, x.toInt(), y.toInt(), size_x + 1.0, 25);       //y hacemos que la bola llame al proceso explosion para que haga la explosion de la bola
+                        explota( graph + 1, x.toInt(), y.toInt(), size_x + 1.0, 25);       //y hacemos que la bola llame al proceso explosion para que haga la explosion de la bola
                         currentGameState.porcentaje++    //incrementamos el porcentaje +1
                         bolas_total--
 
                         if (size_x == 1.0) {      //comprueba si la bola era de tama�o normal
                             currentGameState.puntos += 25;       //si era del tama�o normal te daran 25 puntos
-                            container.bola(graph, x.toInt() - 10, y.toInt() - 10, 50, 0, 1, 2);     //y hacemos dos llamadas para hacer que salten dos bolas a mitad de tama�o
-                            container.bola(graph, x.toInt() + 10, y.toInt() - 10, 50, 0, 2, 2);
+                            bola(graph, x.toInt() - 10, y.toInt() - 10, 50, 0, 1, 2);     //y hacemos dos llamadas para hacer que salten dos bolas a mitad de tama�o
+                            bola(graph, x.toInt() + 10, y.toInt() - 10, 50, 0, 2, 2);
                             collider.destroy()//break;          //eliminamos el proceso de la bola que ha explotao
                         }
                         if (size_x == 0.50) {      //comprueba si la bola era la mitad del tama�o normal
                             currentGameState.puntos += 50       //si era la mitad del tama�o te daran 50 puntos
-                            container.bola(graph, x.toInt() - 10, y.toInt() - 10, 25, 0, 1, 2);     //y hacemos dos llamadas para hacer que salten dos bolas a mitad de tama�o
-                            container.bola(graph, x.toInt() + 10, y.toInt() - 10, 25, 0, 2, 2);
+                            bola(graph, x.toInt() - 10, y.toInt() - 10, 25, 0, 1, 2);     //y hacemos dos llamadas para hacer que salten dos bolas a mitad de tama�o
+                            bola(graph, x.toInt() + 10, y.toInt() - 10, 25, 0, 2, 2);
                             collider.destroy()//break;          //eliminamos el proceso de la bola que ha explotao
                         }
                         if (size_x == 0.25) {       //comprueba si el tama�o de la bola era la mas peque�a
@@ -402,8 +401,8 @@ class GameScene() : SceneBase() {
         }
     }
 
-    fun Container.explota(graph:Int, initialX:Int, initialY:Int, size_x: Double, z:Int) = Explota(this,graph, initialX, initialY, size_x, z)
-    inner class Explota(parent: Container,val initialGraph:Int, val initialX:Int, val initialY:Int, val size_x: Double, val z:Int):Process(parent) {
+
+    inner class explota(val initialGraph:Int, val initialX:Int, val initialY:Int, val size_x: Double, val z:Int):Process(sceneView) {
         override suspend fun main() {
             //play_wav(sfx1,0);
             pafSounds.playPaf()
@@ -425,8 +424,7 @@ class GameScene() : SceneBase() {
         }
     }
 
-    fun Container.prota(initialX:Int) = Prota(this, initialX)
-    inner class Prota(parent:Container, val initialX: Int) :Process(parent) {
+    inner class prota(val initialX: Int) :Process(sceneView) {
         override suspend fun main() {
             var anima = 1        //variable para controlar los saltos de animacion
             var pulsado = 0       //variable para controlar el disparo del protagonista y si no se pulsa ninguna tecla el protagonista se quedara con el grafico de parado
@@ -504,7 +502,7 @@ class GameScene() : SceneBase() {
                 //las funciones que he hecho aki con anima, se podria hacer mas comodo con flags=1 o flags=0, pero el protagonista lleva el arma apoyada al brazo derecho y son distintos graficos
 
                 if (pulsado == 3) {
-                    container.disparo(x.toInt() + 6, y.toInt() - 5/*,size_x*100*/)
+                    disparo(x.toInt() + 6, y.toInt() - 5/*,size_x*100*/)
                 }       //esto comprueba si pulsado es 3 y hace una llamada al disparo, usease es para cuando una vez hayas pulsado b, n, m y lo sueltes el prota dispare
 
                 inmune = inmune + 1;        //incrementa inmune+1
@@ -541,8 +539,7 @@ class GameScene() : SceneBase() {
     }
 
 
-    fun Container.disparo(initialX:Int, initialY:Int) = Disparo(this, initialX, initialY)
-    inner class Disparo(parent:Container, val initialX: Int, val initialY:Int) :Process(parent), ICollider {
+    inner class disparo(val initialX: Int, val initialY:Int) :Process(sceneView), ICollider {
 
         val collider = Collider(currentGameState.arrowCollisions,  this)
         override var alive = collider.alive
@@ -574,8 +571,7 @@ class GameScene() : SceneBase() {
         }
     }
 
-    fun Container.controlador(tipo:Int) = Controlador(this, tipo)
-    inner class Controlador(parent:Container, val tipo:Int) :Process(parent) {
+    inner class controlador:Process(sceneView) {
         override suspend fun main() {
             graph=32;       //este graph sera el que tapa la barra de porcentaje y de vidas
             var z=5;        //la z de las vidas y de porcentaje es de 10 y la del grafico de marcador 0 este se pone entre ambos para que tape el de las vidas y el del porcentaje
@@ -586,13 +582,13 @@ class GameScene() : SceneBase() {
 
             loop {
                 val vidas = currentGameState.vidas
-                if (tipo == 0)  {       //comprueba si tipo es 0 para poder tapar las vidas
-                    if (vidas == 4) x = 340.0
-                    if (vidas == 3) x = 324.0     //si vidas es 3 o el protagonista tiene 3 vidas de juego, no tapara nada
-                    if (vidas == 2) x = 309.0     //si vidas es 2 posaremos el graph 32 encima de la ultima vida
-                    if (vidas == 1) x = 296.0     //si vidas es 1 posaremos el graph 32 encima de dos vidas mostrando solo 1 en pantalla
-                    if (vidas == 0) x = 284.0     //si vidas es 0 se taparan todas las vidas
-                }
+
+                if (vidas == 4) x = 340.0
+                if (vidas == 3) x = 324.0     //si vidas es 3 o el protagonista tiene 3 vidas de juego, no tapara nada
+                if (vidas == 2) x = 309.0     //si vidas es 2 posaremos el graph 32 encima de la ultima vida
+                if (vidas == 1) x = 296.0     //si vidas es 1 posaremos el graph 32 encima de dos vidas mostrando solo 1 en pantalla
+                if (vidas == 0) x = 284.0     //si vidas es 0 se taparan todas las vidas
+
                 frame()
             }
         }

@@ -59,7 +59,7 @@ abstract class Process(parent: Container) : Image(emptyImage) {
 
     open suspend fun main() {}
 
-    suspend fun loop(block:suspend ()->Unit) {
+    inline fun loop(block:()->Unit) {
         while(true) {
             block()
         }

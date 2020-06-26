@@ -94,8 +94,7 @@ class TitleScene() : SceneBase() {
     }
 
 
-    fun Container.pulsaIntro() = PulsaIntro(this)
-    class PulsaIntro(parent: Container):Process(parent) {
+    inner class pulsaIntro:Process(sceneView) {
         override suspend fun main() {
             position(160,200)
             anchor(0.5, 0.5)
@@ -107,14 +106,10 @@ class TitleScene() : SceneBase() {
                 graph = 7
                 delay(0.125.seconds)
             }
-
         }
     }
 
-    fun Container.letraTitulo(graph:Int, initialX:Int, initialY:Int) {
-        LetraTitulo(this, graph, initialX, initialY)
-    }
-    inner class LetraTitulo(parent: Container, private val initialGraph:Int, private val initialX:Int, private val initialY:Int):Process(parent) {
+    inner class letraTitulo(private val initialGraph:Int, private val initialX:Int, private val initialY:Int):Process(sceneView) {
         override suspend fun main() {
             var anima = 0
             graph = initialGraph
@@ -161,9 +156,7 @@ class TitleScene() : SceneBase() {
         }
     }
 
-    fun Container.protaDemo() = ProtaDemo(this)
-    class ProtaDemo(parent: Container):Process(parent)
-    {
+    inner class protaDemo:Process(sceneView) {
         override suspend fun main() {
             var anima = 0
             graph = 22

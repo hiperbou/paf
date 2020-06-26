@@ -17,8 +17,8 @@ class GameState() {
     var porcentaje = 0
 
 
-    val arrowCollisions = Collisions<GameScene.Disparo>()
-    val ballCollision = Collisions<GameScene.Bola>()
+    val arrowCollisions = Collisions<GameScene.disparo>()
+    val ballCollision = Collisions<GameScene.bola>()
     //val playerCollision = Collisions<Player>()
 
     fun resetCollisions(){
