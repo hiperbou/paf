@@ -4,7 +4,6 @@ import com.soywiz.klock.seconds
 import com.soywiz.kmem.unsetBits
 import com.soywiz.korge.input.onKeyDown
 import com.soywiz.korge.input.onKeyUp
-import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.time.delay
 import com.soywiz.korge.view.*
 import com.soywiz.korio.async.launchImmediately
@@ -45,10 +44,10 @@ class TitleScene() : SceneBase() {
                 }
             }
 
-            letraTítulo(10,107,-60, pafSounds)       //llamada al proceso letra_titulo para la letra P
-            letraTítulo(12,146,-80, pafSounds)       //para la letra A
-            letraTítulo(14,187,-100, pafSounds)       //para la letra F
-            letraTítulo(16,220,-120, pafSounds)      //para la letra !
+            letraTitulo(10,107,-60)       //llamada al proceso letra_titulo para la letra P
+            letraTitulo(12,146,-80)       //para la letra A
+            letraTitulo(14,187,-100)       //para la letra F
+            letraTitulo(16,220,-120)      //para la letra !
 
             foto(5,160,220,100,100,0)      //llamada para crear imagen del nombre del creador
 
@@ -112,10 +111,10 @@ class TitleScene() : SceneBase() {
         }
     }
 
-    fun Container.letraTítulo(graph:Int, initialX:Int, initialY:Int, pafSounds:PafSounds) {
-        LetraTítulo(this, graph, initialX, initialY, pafSounds)
+    fun Container.letraTitulo(graph:Int, initialX:Int, initialY:Int) {
+        LetraTitulo(this, graph, initialX, initialY)
     }
-    class LetraTítulo(parent: Container, private val initialGraph:Int, private val initialX:Int, private val initialY:Int, private val pafSounds:PafSounds):Process(parent) {
+    inner class LetraTitulo(parent: Container, private val initialGraph:Int, private val initialX:Int, private val initialY:Int):Process(parent) {
         override suspend fun main() {
             var anima = 0
             graph = initialGraph
@@ -178,7 +177,7 @@ class TitleScene() : SceneBase() {
 
             loop {
                 if (anima==0) {       //comprueba si anima es 0
-                    graph=graph+1
+                    graph++
                     if (graph>25){ graph=22 }        //incrementa graph+1 y comprueba si es mayor de 25 si es mayor inicia al grafico 22
                     x=x-3
                     if (x<-20){
@@ -188,7 +187,7 @@ class TitleScene() : SceneBase() {
                     }     //resta x-3 y comprueba si es menor que -20 y cambia de graph y de anima
                 }
                 if (anima==1) {       //comprueba si anima es 1
-                    graph=graph+1
+                    graph++
                     if (graph>29) { graph=26 }        //incrementa graph+1 y comprueba si es mayor de 29 si es mayor inicia al grafico 29
                     x=x+3
                     if (x>340){

@@ -1,7 +1,7 @@
 package gameplay
 
-import entity.Arrow
-import entity.Ball
+
+import scenes.GameScene
 
 
 class GameState() {
@@ -17,8 +17,8 @@ class GameState() {
     var porcentaje = 0
 
 
-    val arrowCollisions = Collisions<Arrow>()
-    val ballCollision = Collisions<Ball>()
+    val arrowCollisions = Collisions<GameScene.Disparo>()
+    val ballCollision = Collisions<GameScene.Bola>()
     //val playerCollision = Collisions<Player>()
 
     fun resetCollisions(){

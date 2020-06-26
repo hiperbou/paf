@@ -34,3 +34,22 @@ class Collisions<T:View> {
     }
 
 }
+
+interface ICollider {
+    var alive:Boolean
+    fun destroy()
+}
+
+class Collider<T: View>(private val collisions: Collisions<T>, private val container:T):ICollider
+{
+    override var alive = true
+    init {
+        collisions.add(container)
+    }
+
+    override fun destroy() {
+        alive = false
+        container.removeFromParent()
+        collisions.remove(container)
+    }
+}

@@ -5,12 +5,10 @@ import com.soywiz.kmem.setBits
 import com.soywiz.kmem.unsetBits
 import com.soywiz.korge.input.onKeyDown
 import com.soywiz.korge.input.onKeyUp
-import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.scene.sleep
 import com.soywiz.korge.view.*
 import com.soywiz.korio.async.launchImmediately
-import entity.Arrow
-import entity.Ball
+
 import extensions.toBool
 import gameplay.*
 import input.BUTTON_A
@@ -19,7 +17,7 @@ import input.BUTTON_RIGHT
 import input.getButtonPressed
 import resources.Resources
 
-class GameScene() : Scene() {
+class GameScene() : SceneBase() {
 
     var bolas_total = 0
 
@@ -191,276 +189,341 @@ class GameScene() : Scene() {
         recordText.text = record.toString().padStart(6, '0')
     }
 
+    fun Container.bola(graph:Int, initialX:Int, initialY:Int, size_x:Int, flags:Int, anima_x:Int, anima_y:Int) = Bola(this,graph, initialX, initialY, size_x, flags, anima_x, anima_y)
+    inner class Bola(parent: Container,val initialGraph:Int, val initialX:Int, val initialY:Int, val size_x:Int, val flags:Int, val anima_x:Int, val anima_y:Int):Process(parent), ICollider {
 
-    fun Container.bola(graph:Int, initialX:Int, initialY:Int, size_x:Int, flags:Int, anima_x:Int, anima_y:Int) {
-        var graph = graph
-        var anima_x = anima_x
-        var anima_y = anima_y
-        var flags = 0
-        var size_x = size_x/100.0
-        var velocidad = 0    //variable para controlar la velocidad de subida y bajada de la bola
-        var id_disp:Arrow? = null        //variable para identificar si colisiona con el disparo del prota
+        val collider = Collider(currentGameState.ballCollision,  this)
+        override var alive = collider.alive
+        override fun destroy() { collider.destroy() }
 
-        val container = this
+        override suspend fun main() {
+            graph = initialGraph
+            var anima_x = anima_x
+            var anima_y = anima_y
+            var flags = 0
+            var size_x = size_x / 100.0
+            var velocidad = 0    //variable para controlar la velocidad de subida y bajada de la bola
+            var id_disp: Disparo? = null        //variable para identificar si colisiona con el disparo del prota
 
-        Ball(getImage(graph)).apply {
-            position(initialX,initialY)
+            val container = parent!!
+
+
+
+            position(initialX, initialY)
             anchor(0.5, 1)
-            scale(size_x,size_x)
+            scale(size_x, size_x)
             smoothing = false
 
             loop {
-                if (currentGameState.pauseBalls) { frame(); return@loop }
+                if (currentGameState.pauseBalls) {
+                    frame(); return@loop
+                }
                 //comprueba si la bola tiene distintos graph para que hagan distintos movimientos en pantalla
 
-                if (graph==10) {     //comprueba si el graph del proceso es 10
-                    if (anima_x==0 && anima_y==0)  {     //si anima_x & anima_y es 0
-                        y=y+1;      //saldra la bola en la parte superior de la pantalla bajando a 1
-                        if (y>=30)  {     //comprueba si y es mayor o igual de 30
+                if (graph == 10) {     //comprueba si el graph del proceso es 10
+                    if (anima_x == 0 && anima_y == 0) {     //si anima_x & anima_y es 0
+                        y = y + 1;      //saldra la bola en la parte superior de la pantalla bajando a 1
+                        if (y >= 30) {     //comprueba si y es mayor o igual de 30
                             anima_x = (1..2).random()
-                            anima_y=1
-                            flags=0    //y hace un rand para que vaya saltado hacia la izquierda o hacia la derecha
+                            anima_y = 1
+                            flags = 0    //y hace un rand para que vaya saltado hacia la izquierda o hacia la derecha
                         }
                     }
-                    if (anima_x==1) {
-                        x=x-3;
-                        if (x<10) { x=10.0; anima_x=2;}
+                    if (anima_x == 1) {
+                        x = x - 3;
+                        if (x < 10) {
+                            x = 10.0; anima_x = 2;
+                        }
                     }
-                    if (anima_x==2) {
-                        x=x+3;
-                        if (x>230) { x=230.0; anima_x=1;}
+                    if (anima_x == 2) {
+                        x = x + 3;
+                        if (x > 230) {
+                            x = 230.0; anima_x = 1;
+                        }
                     }
-                    if (anima_y==1) {
-                        velocidad=velocidad+1;y=y+velocidad;
-                        if (velocidad>12) { velocidad=12;}
-                        if (y>222) {
+                    if (anima_y == 1) {
+                        velocidad = velocidad + 1;y = y + velocidad;
+                        if (velocidad > 12) {
+                            velocidad = 12;
+                        }
+                        if (y > 222) {
                             /*play_wav(sfx0,0);*/
                             pafSounds.playBota()
-                            y=222.0; anima_y=2;}
+                            y = 222.0; anima_y = 2;
+                        }
                     }
-                    if (anima_y==2) {
-                        y=y-velocidad;velocidad=velocidad-1;
-                        if (velocidad<0) { velocidad=0;anima_y=1;}
+                    if (anima_y == 2) {
+                        y = y - velocidad;velocidad = velocidad - 1;
+                        if (velocidad < 0) {
+                            velocidad = 0;anima_y = 1;
+                        }
                     }
                 }
 
-                if (graph==12)  {     //comprueba si el graph del proceso es 12
-                    if (anima_x==0 && anima_y==0) {      //si anima_x & anima_y es 0
-                        y=y+1;      //saldra la bola en la parte superior de la pantalla bajando a 1
-                        if (y>=30) {      //comprueba si y es mayor o igual de 30
-                            anima_x=(1..2).random();anima_y=1;flags=0;    //y hace un rand para que vaya saltado hacia la izquierda o hacia la derecha
+                if (graph == 12) {     //comprueba si el graph del proceso es 12
+                    if (anima_x == 0 && anima_y == 0) {      //si anima_x & anima_y es 0
+                        y = y + 1;      //saldra la bola en la parte superior de la pantalla bajando a 1
+                        if (y >= 30) {      //comprueba si y es mayor o igual de 30
+                            anima_x = (1..2).random();anima_y = 1;flags = 0;    //y hace un rand para que vaya saltado hacia la izquierda o hacia la derecha
                         }
                     }
-                    if (anima_x==1) {
-                        x=x-1;
-                        if (x<10) { x=10.0;anima_x=2;}
+                    if (anima_x == 1) {
+                        x = x - 1;
+                        if (x < 10) {
+                            x = 10.0;anima_x = 2;
+                        }
                     }
-                    if (anima_x==2) {
-                        x=x+1;
-                        if (x>230) { x=230.0;anima_x=1;}
+                    if (anima_x == 2) {
+                        x = x + 1;
+                        if (x > 230) {
+                            x = 230.0;anima_x = 1;
+                        }
                     }
-                    if (anima_y==1) {
-                        velocidad=velocidad+1;y=y+velocidad;
-                        if (velocidad>16) { velocidad=16;}
-                        if (y>222) { /*play_wav(sfx0,0);*/
+                    if (anima_y == 1) {
+                        velocidad = velocidad + 1;y = y + velocidad;
+                        if (velocidad > 16) {
+                            velocidad = 16;
+                        }
+                        if (y > 222) { /*play_wav(sfx0,0);*/
                             pafSounds.playBota()
-                            y=222.0;anima_y=2;}
+                            y = 222.0;anima_y = 2;
+                        }
                     }
-                    if (anima_y==2) {
-                        y=y-velocidad;velocidad=velocidad-1;
-                        if (velocidad<0) { velocidad=0;anima_y=1;}
+                    if (anima_y == 2) {
+                        y = y - velocidad;velocidad = velocidad - 1;
+                        if (velocidad < 0) {
+                            velocidad = 0;anima_y = 1;
+                        }
                     }
                 }
 
-                if (graph==14) {      //comprueba si el graph del proceso es 14
-                    if (anima_x==0 && anima_y==0) {      //si anima_x & anima_y es 0
-                        y=y+1;      //saldra la bola en la parte superior de la pantalla bajando a 1
-                        if (y>=30) {      //comprueba si y es mayor o igual de 30
-                            anima_x=(1..2).random();anima_y=1;flags=0;    //y hace un rand para que vaya saltado hacia la izquierda o hacia la derecha
+                if (graph == 14) {      //comprueba si el graph del proceso es 14
+                    if (anima_x == 0 && anima_y == 0) {      //si anima_x & anima_y es 0
+                        y = y + 1;      //saldra la bola en la parte superior de la pantalla bajando a 1
+                        if (y >= 30) {      //comprueba si y es mayor o igual de 30
+                            anima_x = (1..2).random();anima_y = 1;flags = 0;    //y hace un rand para que vaya saltado hacia la izquierda o hacia la derecha
                         }
                     }
-                    if (anima_x==1) {
-                        x=x-2;
-                        if (x<10) { x=10.0;anima_x=2;}
+                    if (anima_x == 1) {
+                        x = x - 2;
+                        if (x < 10) {
+                            x = 10.0;anima_x = 2;
+                        }
                     }
-                    if (anima_x==2) {
-                        x=x+2;
-                        if (x>230) { x=230.0;anima_x=1;}
+                    if (anima_x == 2) {
+                        x = x + 2;
+                        if (x > 230) {
+                            x = 230.0;anima_x = 1;
+                        }
                     }
-                    if (anima_y==1) {
-                        y=y+2;
-                        if (y>222) { y=222.0;anima_y=2;}
+                    if (anima_y == 1) {
+                        y = y + 2;
+                        if (y > 222) {
+                            y = 222.0;anima_y = 2;
+                        }
                     }
-                    if (anima_y==2) {
-                        y=y-2;
-                        if (y<20) { y=20.0;anima_y=1;}
+                    if (anima_y == 2) {
+                        y = y - 2;
+                        if (y < 20) {
+                            y = 20.0;anima_y = 1;
+                        }
                     }
                 }
 
-                if (graph==16) {      //comprueba si el graph del proceso es 16
-                    if (anima_x==0 && anima_y==0) {      //si anima_x & anima_y es 0
-                        y=y+1;      //saldra la bola en la parte superior de la pantalla bajando a 1
-                        if (y>=30) {      //comprueba si y es mayor o igual de 30
-                        anima_x=(1..2).random();anima_y=1;flags=0;    //y hace un rand para que vaya saltado hacia la izquierda o hacia la derecha
+                if (graph == 16) {      //comprueba si el graph del proceso es 16
+                    if (anima_x == 0 && anima_y == 0) {      //si anima_x & anima_y es 0
+                        y = y + 1;      //saldra la bola en la parte superior de la pantalla bajando a 1
+                        if (y >= 30) {      //comprueba si y es mayor o igual de 30
+                            anima_x = (1..2).random();anima_y = 1;flags = 0;    //y hace un rand para que vaya saltado hacia la izquierda o hacia la derecha
                         }
                     }
-                    if (anima_x==1) {
-                        x=x-4;
-                        if (x<10) { x=10.0;anima_x=2;}
+                    if (anima_x == 1) {
+                        x = x - 4;
+                        if (x < 10) {
+                            x = 10.0;anima_x = 2;
+                        }
                     }
-                    if (anima_x==2) {
-                        x=x+4;
-                        if (x>230) { x=230.0;anima_x=1;}
+                    if (anima_x == 2) {
+                        x = x + 4;
+                        if (x > 230) {
+                            x = 230.0;anima_x = 1;
+                        }
                     }
-                    if (anima_y==1) {
-                        y=y+4;
-                        if (y>222) { y=222.0;anima_y=2;}
+                    if (anima_y == 1) {
+                        y = y + 4;
+                        if (y > 222) {
+                            y = 222.0;anima_y = 2;
+                        }
                     }
-                    if (anima_y==2) {
-                        y=y-4;
-                        if (y<20) { y=20.0;anima_y=1;}
+                    if (anima_y == 2) {
+                        y = y - 4;
+                        if (y < 20) {
+                            y = 20.0;anima_y = 1;
+                        }
                     }
                 }
 
 
                 //ahora toca lo de la colision a las bolas con el proceso disparo
 
-                    if (anima_x != 0 && anima_y != 0) {      //comprueba que anima_x y anima_y sean distintos a 0
+                if (anima_x != 0 && anima_y != 0) {      //comprueba que anima_x y anima_y sean distintos a 0
 
-                        id_disp = currentGameState.arrowCollisions.colidesWith(this, (20*size_x).toInt())
+                    id_disp = currentGameState.arrowCollisions.colidesWith(this, (20 * size_x).toInt())
 
-                        if (id_disp != null && id_disp!!.alive && alive) {     //comprueba si la bola a colisionado con el proceso disparo
-                            id_disp!!.destroy() //si ha colisionado con el disparo, borra el proceso disparo con un signal
-                            container.explota(graph + 1, x.toInt(), y.toInt(), size_x + 1.0, 25);       //y hacemos que la bola llame al proceso explosion para que haga la explosion de la bola
-                            currentGameState.porcentaje++    //incrementamos el porcentaje +1
-                            bolas_total--
+                    if (id_disp != null && id_disp!!.alive && collider.alive) {     //comprueba si la bola a colisionado con el proceso disparo
+                        id_disp!!.destroy() //si ha colisionado con el disparo, borra el proceso disparo con un signal
+                        container.explota( graph + 1, x.toInt(), y.toInt(), size_x + 1.0, 25);       //y hacemos que la bola llame al proceso explosion para que haga la explosion de la bola
+                        currentGameState.porcentaje++    //incrementamos el porcentaje +1
+                        bolas_total--
 
-                            if (size_x == 1.0) {      //comprueba si la bola era de tama�o normal
-                                currentGameState.puntos += 25;       //si era del tama�o normal te daran 25 puntos
-                                container.bola(graph, x.toInt() - 10, y.toInt() - 10, 50, 0, 1, 2);     //y hacemos dos llamadas para hacer que salten dos bolas a mitad de tama�o
-                                container.bola(graph, x.toInt() + 10, y.toInt() - 10, 50, 0, 2, 2);
-                                destroy()//break;          //eliminamos el proceso de la bola que ha explotao
-                            }
-                            if (size_x == 0.50) {      //comprueba si la bola era la mitad del tama�o normal
-                                currentGameState.puntos += 50       //si era la mitad del tama�o te daran 50 puntos
-                                container.bola(graph, x.toInt() - 10, y.toInt() - 10, 25, 0, 1, 2);     //y hacemos dos llamadas para hacer que salten dos bolas a mitad de tama�o
-                                container.bola(graph, x.toInt() + 10, y.toInt() - 10, 25, 0, 2, 2);
-                                destroy()//break;          //eliminamos el proceso de la bola que ha explotao
-                            }
-                            if (size_x == 0.25) {       //comprueba si el tama�o de la bola era la mas peque�a
-                                currentGameState.puntos += 100;      //te incrementara 100 puntos
-                                destroy()//break;          //eliminamos el proceso de la bola que ha explotao, sin hacer mas llamadas
-                            }
-                            updateScore()
+                        if (size_x == 1.0) {      //comprueba si la bola era de tama�o normal
+                            currentGameState.puntos += 25;       //si era del tama�o normal te daran 25 puntos
+                            container.bola(graph, x.toInt() - 10, y.toInt() - 10, 50, 0, 1, 2);     //y hacemos dos llamadas para hacer que salten dos bolas a mitad de tama�o
+                            container.bola(graph, x.toInt() + 10, y.toInt() - 10, 50, 0, 2, 2);
+                            collider.destroy()//break;          //eliminamos el proceso de la bola que ha explotao
                         }
+                        if (size_x == 0.50) {      //comprueba si la bola era la mitad del tama�o normal
+                            currentGameState.puntos += 50       //si era la mitad del tama�o te daran 50 puntos
+                            container.bola(graph, x.toInt() - 10, y.toInt() - 10, 25, 0, 1, 2);     //y hacemos dos llamadas para hacer que salten dos bolas a mitad de tama�o
+                            container.bola(graph, x.toInt() + 10, y.toInt() - 10, 25, 0, 2, 2);
+                            collider.destroy()//break;          //eliminamos el proceso de la bola que ha explotao
+                        }
+                        if (size_x == 0.25) {       //comprueba si el tama�o de la bola era la mas peque�a
+                            currentGameState.puntos += 100;      //te incrementara 100 puntos
+                            collider.destroy()//break;          //eliminamos el proceso de la bola que ha explotao, sin hacer mas llamadas
+                        }
+                        updateScore()
                     }
+                }
 
-                texture = getImage(graph)
-                if(!alive) destroy()
+                if (!collider.alive) collider.destroy()
                 frame()
             }
-        }.addTo(this)
+        }
     }
 
-
-
-    fun Container.explota(graph:Int, initialX:Int, initialY:Int, size_x: Double, z:Int) {
-        //play_wav(sfx1,0);
-        pafSounds.playPaf()
-        image(getImage(graph)) {
-            position(initialX,initialY)
+    fun Container.explota(graph:Int, initialX:Int, initialY:Int, size_x: Double, z:Int) = Explota(this,graph, initialX, initialY, size_x, z)
+    inner class Explota(parent: Container,val initialGraph:Int, val initialX:Int, val initialY:Int, val size_x: Double, val z:Int):Process(parent) {
+        override suspend fun main() {
+            //play_wav(sfx1,0);
+            pafSounds.playPaf()
+            graph = initialGraph
+            position(initialX, initialY)
             anchor(0.5, 0.5)
-            scale(size_x,size_x)
+            scale(size_x, size_x)
             smoothing = false
-        }.apply {
+
             loop {
                 scaleX -= 0.20;       //disminuye el tama�o con size a -20
                 scaleY -= 0.20;
 
-                if (scaleX<1) alpha=0.5;   //comprueba si size es menor de 100 para poner la explosion trasparente
-                if (scaleX<0.01) removeFromParent() //break      //comprueba si size es menor de 10 para quitar el proceso
+                if (scaleX < 1) alpha = 0.5;   //comprueba si size es menor de 100 para poner la explosion trasparente
+                if (scaleX < 0.01) removeFromParent() //break      //comprueba si size es menor de 10 para quitar el proceso
 
                 frame()
             }
         }
     }
 
-    fun Container.prota(initialX:Int){
-        var anima = 1        //variable para controlar los saltos de animacion
-        var pulsado = 0       //variable para controlar el disparo del protagonista y si no se pulsa ninguna tecla el protagonista se quedara con el grafico de parado
-        var inmune = 0       //variable para controlar que pases un rato de inmunidad
+    fun Container.prota(initialX:Int) = Prota(this, initialX)
+    inner class Prota(parent:Container, val initialX: Int) :Process(parent) {
+        override suspend fun main() {
+            var anima = 1        //variable para controlar los saltos de animacion
+            var pulsado = 0       //variable para controlar el disparo del protagonista y si no se pulsa ninguna tecla el protagonista se quedara con el grafico de parado
+            var inmune = 0       //variable para controlar que pases un rato de inmunidad
 
-        var graph = 27       //ponemos ese grafico de inicio
-        //x=120;          //centramos al protagonista en pantalla en la posicion horizontal
-        var initialY=212;          //ponemos al protagonista encima del suelo
-        var size_x = 1
-        var size_y = 1       //ponemos tama�o normal
-        var z = 20           //ponemos profundidad de 20, delante del fondo y del suelo
+            graph = 27       //ponemos ese grafico de inicio
+            //x=120;          //centramos al protagonista en pantalla en la posicion horizontal
+            var initialY = 212;          //ponemos al protagonista encima del suelo
+            var size_x = 1
+            var size_y = 1       //ponemos tama�o normal
+            var z = 20           //ponemos profundidad de 20, delante del fondo y del suelo
 
-        var key = 0
+            var key = 0
 
-        onKeyDown { key = key.setBits(getButtonPressed(it)) }
-        onKeyUp { key = key.unsetBits(getButtonPressed(it)) }
+            onKeyDown { key = key.setBits(getButtonPressed(it)) }
+            onKeyUp { key = key.unsetBits(getButtonPressed(it)) }
 
-        val k_left = BUTTON_LEFT
-        val k_right = BUTTON_RIGHT
-        val k_shoot = BUTTON_A
+            val k_left = BUTTON_LEFT
+            val k_right = BUTTON_RIGHT
+            val k_shoot = BUTTON_A
 
-        val container = this
+            val container = parent!!
 
-
-        image(getImage(graph)) {
-            position(initialX,initialY)
+            position(initialX, initialY)
             anchor(0.5, 0.5)
-            scale(size_x,size_x)
+            scale(size_x, size_x)
             smoothing = false
-        }.apply {
+
             loop {
-                if (pulsado<3)  {    //comprueba si pulsado es menor de 3
-                    if ((key and k_left).toBool() && x>5) {     //si pulsado es menor de 3 y pulsas el cursor a la izquierda siempre que la posicion x del personaje sea mayor de 5
+                if (pulsado < 3) {    //comprueba si pulsado es menor de 3
+                    if ((key and k_left).toBool() && x > 5) {     //si pulsado es menor de 3 y pulsas el cursor a la izquierda siempre que la posicion x del personaje sea mayor de 5
                         x -= 3
-                        pulsado=2        //se disminuira la x-3 y pondremos pulsado a 2
-                        if (anima==1) { graph=22; anima=0;}      //comprueba si anima es 1 para darle un grafico inicial y cambiarlo a anima 0
+                        pulsado = 2        //se disminuira la x-3 y pondremos pulsado a 2
+                        if (anima == 1) {
+                            graph = 22; anima = 0;
+                        }      //comprueba si anima es 1 para darle un grafico inicial y cambiarlo a anima 0
                     }
-                    if ((key and k_right).toBool() && x<240) {      //si pulsado es menor de 3 y pulsas el cursor a la izquierda siempre que la posicion x del personaje sea mayor de 5
+                    if ((key and k_right).toBool() && x < 240) {      //si pulsado es menor de 3 y pulsas el cursor a la izquierda siempre que la posicion x del personaje sea mayor de 5
                         x += 3;
-                        pulsado=2;            //se incrementara la x+3 y pondremos pulsado a 2
-                        if (anima==0)  { graph=26; anima=1;}      //comprueba si anima es 1 para darle un grafico inicial y cambiarlo a anima 1
+                        pulsado = 2;            //se incrementara la x+3 y pondremos pulsado a 2
+                        if (anima == 0) {
+                            graph = 26; anima = 1;
+                        }      //comprueba si anima es 1 para darle un grafico inicial y cambiarlo a anima 1
                     }
                 }
 
-                if ((key and k_shoot).toBool()) { pulsado=5; graph=21; }      //si pulsamos las teclas b, n, m pondremos pulsado a 5 y el grafico del prota mirando arriba
+                if ((key and k_shoot).toBool()) {
+                    pulsado = 5; graph = 21; }      //si pulsamos las teclas b, n, m pondremos pulsado a 5 y el grafico del prota mirando arriba
 
-                pulsado=pulsado-1;      //restamos a pulsando-1
-                if (pulsado==0 && anima==0) { graph=23;}       //si ha llegado aki el programa quiere decir que no se ha pulsado ninguna tecla de control y pondra el grafico del protagonista quieto
-                if (pulsado==0 && anima==1) { graph=27;}       //aki lo mismo que el de arriba pero mirando el protagonista a la derecha
-                if (pulsado>0 && pulsado<3)  {       //controla si pulsado es mayor de 0 y menor de 3
-                    if (graph!=21) { graph++ }        //si es mayor de 0 y menor de 3 y el graph es distinto a 21 incrementara graph+1
-                    if (graph==21 && anima==0) { graph=22;}    //esto es para que una vez haya disparado el prota mire a la izquierda, aunque es mas comodo con los flags
-                    if (graph==21 && anima==1) { graph=26;}    //esto es para que una vez haya disparado el prota mire a la derecha, aunque es mas comodo con los flags
-                    if (anima==0 && graph>25) { graph=22;}     //comprueba que el prota esta andando para la izquierda y si es mayor el grafico a 25 volverlo a poner desde el grafico 22
-                    if (anima==1 && graph>29) { graph=26;}     //comprueba que el prota esta andando para la derecha y si es mayor el grafico a 29 volverlo a poner desde el grafico 26
+                pulsado = pulsado - 1;      //restamos a pulsando-1
+                if (pulsado == 0 && anima == 0) {
+                    graph = 23;
+                }       //si ha llegado aki el programa quiere decir que no se ha pulsado ninguna tecla de control y pondra el grafico del protagonista quieto
+                if (pulsado == 0 && anima == 1) {
+                    graph = 27;
+                }       //aki lo mismo que el de arriba pero mirando el protagonista a la derecha
+                if (pulsado > 0 && pulsado < 3) {       //controla si pulsado es mayor de 0 y menor de 3
+                    if (graph != 21) {
+                        graph++
+                    }        //si es mayor de 0 y menor de 3 y el graph es distinto a 21 incrementara graph+1
+                    if (graph == 21 && anima == 0) {
+                        graph = 22;
+                    }    //esto es para que una vez haya disparado el prota mire a la izquierda, aunque es mas comodo con los flags
+                    if (graph == 21 && anima == 1) {
+                        graph = 26;
+                    }    //esto es para que una vez haya disparado el prota mire a la derecha, aunque es mas comodo con los flags
+                    if (anima == 0 && graph > 25) {
+                        graph = 22;
+                    }     //comprueba que el prota esta andando para la izquierda y si es mayor el grafico a 25 volverlo a poner desde el grafico 22
+                    if (anima == 1 && graph > 29) {
+                        graph = 26;
+                    }     //comprueba que el prota esta andando para la derecha y si es mayor el grafico a 29 volverlo a poner desde el grafico 26
                 }
 
                 //las funciones que he hecho aki con anima, se podria hacer mas comodo con flags=1 o flags=0, pero el protagonista lleva el arma apoyada al brazo derecho y son distintos graficos
 
-                if (pulsado==3) { container.disparo(x.toInt()+6,y.toInt()-5/*,size_x*100*/) }       //esto comprueba si pulsado es 3 y hace una llamada al disparo, usease es para cuando una vez hayas pulsado b, n, m y lo sueltes el prota dispare
+                if (pulsado == 3) {
+                    container.disparo(x.toInt() + 6, y.toInt() - 5/*,size_x*100*/)
+                }       //esto comprueba si pulsado es 3 y hace una llamada al disparo, usease es para cuando una vez hayas pulsado b, n, m y lo sueltes el prota dispare
 
-                inmune=inmune+1;        //incrementa inmune+1
-                if (inmune<60) { alpha=0.5;}      //comprueba si inmune es menor de 50, si es menor pone al protagonista trasparente para que se vea que es inmune
-                if (inmune>=60) {     //comprueba si inmune es mayor o igual de 50, si es mayor pondremos la colision para que el protagonista sea vulnerable
-                    alpha=1.0        //si es mayor o igual le quita la trasparencia al protagonista y lo pone normal
+                inmune = inmune + 1;        //incrementa inmune+1
+                if (inmune < 60) {
+                    alpha = 0.5;
+                }      //comprueba si inmune es menor de 50, si es menor pone al protagonista trasparente para que se vea que es inmune
+                if (inmune >= 60) {     //comprueba si inmune es mayor o igual de 50, si es mayor pondremos la colision para que el protagonista sea vulnerable
+                    alpha = 1.0        //si es mayor o igual le quita la trasparencia al protagonista y lo pone normal
                     //if(fcollision_cc2(id.idspr,2,0)!=0) {
-                    val col  = currentGameState.ballCollision.colidesWith(this, 15, -15)
-                    if(col != null && col.alive) {
+                    val col = currentGameState.ballCollision.colidesWith(this, 15, -15)
+                    if (col != null && col.alive) {
                         //-- if (collision_cc("bola")!=0) {       //comprueba si te toca una bola
 
                         println("$x,$y - ${col.pos}")
 
                         currentGameState.vidas--
                         println("vidas ${currentGameState.vidas}")
-                        inmune=0;     //si te ha tocado resta vidas-1 y pone inmune a 0, para volver al protagonista inmunerable por unos instantes
-                        if (currentGameState.vidas<=-1) {
+                        inmune = 0;     //si te ha tocado resta vidas-1 y pone inmune a 0, para volver al protagonista inmunerable por unos instantes
+                        if (currentGameState.vidas <= -1) {
                             //signal("bola",s_freeze);
                             //frame(2400);
                             println("GAME OVER")
@@ -472,25 +535,29 @@ class GameScene() : Scene() {
                     }
                 }
 
-                texture = getImage(graph)
                 frame()
             }
         }
     }
 
 
-    fun Container.disparo(initialX:Int, initialY:Int/*, size_x: Double*/) {
-        var graph=20;   //le ponemos el grafico
-        var z=25;       //le ponemos la profundidad, que este detras del prota
+    fun Container.disparo(initialX:Int, initialY:Int) = Disparo(this, initialX, initialY)
+    inner class Disparo(parent:Container, val initialX: Int, val initialY:Int) :Process(parent), ICollider {
 
-        //play_wav(sfx2,0);
-        pafSounds.playDisparo()
+        val collider = Collider(currentGameState.arrowCollisions,  this)
+        override var alive = collider.alive
+        override fun destroy() { collider.destroy() }
 
-        //TODO: KORGE BUG wrong scalling anchor with atlas image
-        //image(/*getImage(graph)*/Resources.arrow) {
-        Arrow(/*getImage(graph)*/Resources.arrow).apply {
+        override suspend fun main() {
+            //TODO: KORGE BUG wrong scalling anchor with atlas image
+            //graph=20   //le ponemos el grafico
+            texture = Resources.arrow
+            var z=25;       //le ponemos la profundidad, que este detras del prota
 
-            position(initialX,initialY)
+            pafSounds.playDisparo()
+
+            position(initialX, initialY)
+
             anchor(0.5, 0.5)
             smoothing = false
 
@@ -504,20 +571,16 @@ class GameScene() : Scene() {
 
                 frame()
             }
-        }.addTo(this)
+        }
     }
 
-    fun Container.controlador(tipo:Int) {
-        var graph=32;       //este graph sera el que tapa la barra de porcentaje y de vidas
+    fun Container.controlador(tipo:Int) = Controlador(this, tipo)
+    inner class Controlador(parent:Container, val tipo:Int) :Process(parent) {
+        override suspend fun main() {
+            graph=32;       //este graph sera el que tapa la barra de porcentaje y de vidas
+            var z=5;        //la z de las vidas y de porcentaje es de 10 y la del grafico de marcador 0 este se pone entre ambos para que tape el de las vidas y el del porcentaje
 
-        val initialY = if (tipo==0) 84.0;       //compruba si tipo es 0 para poner el graph 32 a la altura de la barra de vidas
-        else   158.0;      //compruba si tipo es 1 para poner el graph 32 a la altura de la barra de porcentaje
-
-
-        var z=5;        //la z de las vidas y de porcentaje es de 10 y la del grafico de marcador 0 este se pone entre ambos para que tape el de las vidas y el del porcentaje
-
-        image(getImage(graph)).apply {
-            position(0,initialY)
+            position(0,84.0)
             anchor(0.5, 0.5)
             smoothing = false
 
@@ -530,9 +593,6 @@ class GameScene() : Scene() {
                     if (vidas == 1) x = 296.0     //si vidas es 1 posaremos el graph 32 encima de dos vidas mostrando solo 1 en pantalla
                     if (vidas == 0) x = 284.0     //si vidas es 0 se taparan todas las vidas
                 }
-                /*if (tipo==1)        //comprueba si tipo es 1 para destapar la barra de porcentaje
-                    x=284+porcentaje;       //ponemos el graph 32 delante de la barra de %juego e ira destapandose a medida que incremente porcentaje
-                end*/
                 frame()
             }
         }
