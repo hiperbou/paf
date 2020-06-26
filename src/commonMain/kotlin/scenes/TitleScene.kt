@@ -98,39 +98,33 @@ class TitleScene() : SceneBase() {
     fun Container.pulsaIntro() = PulsaIntro(this)
     class PulsaIntro(parent: Container):Process(parent) {
         override suspend fun main() {
-            val graphA = getImage(6)
-            val graphB = getImage(7)
-
             position(160,200)
+            anchor(0.5, 0.5)
+            smoothing = false
 
-            with(image(graphA) {
-                anchor(0.5, 0.5)
-                smoothing = false
-            }){
-                loop {
-                    texture = graphA
-                    delay(0.125.seconds)
-                    texture = graphB
-                    delay(0.125.seconds)
-                }
+            loop {
+                graph = 6
+                delay(0.125.seconds)
+                graph = 7
+                delay(0.125.seconds)
             }
+
         }
     }
 
     fun Container.letraTítulo(graph:Int, initialX:Int, initialY:Int, pafSounds:PafSounds) {
         LetraTítulo(this, graph, initialX, initialY, pafSounds)
     }
-    class LetraTítulo(parent: Container, var graph:Int, val initialX:Int, val initialY:Int, val pafSounds:PafSounds):Process(parent) {
+    class LetraTítulo(parent: Container, private val initialGraph:Int, private val initialX:Int, private val initialY:Int, private val pafSounds:PafSounds):Process(parent) {
         override suspend fun main() {
             var anima = 0
+            graph = initialGraph
 
             position(initialX,initialY)
 
-            val sprite = image(getImage(graph)) {
-                anchor(0.5, 0.5)
-                scale(1.0,1.0)
-                smoothing = false
-            }
+            anchor(0.5, 0.5)
+            scale(1.0,1.0)
+            smoothing = false
 
             loop {
                 if (anima==0) {      //comprueba si anima es 0
@@ -144,12 +138,11 @@ class TitleScene() : SceneBase() {
                 }
                 if (anima==1) {      //comprueba si anima es 1
                     graph++
-                    sprite.texture = getImage(graph)
                     scale = 2.0
                     anima=2     //si anima es 1 hara otra animacion a la anterior y pasara a anima=2 para no volver a repetirlo
                 }
                 if (anima==2) {      //comprueba si anima es 2
-                    scale = scale - 0.2
+                    scale -= 0.2
                     if (scale < 0.5) {
                         scale = 1.0
                         anima=3
@@ -160,7 +153,6 @@ class TitleScene() : SceneBase() {
                     if (graph==13) { graph=2 }      //comprueba si graph es 13 para cambiarlo a 2
                     if (graph==15) { graph=3 }      //comprueba si graph es 15 para cambiarlo a 3
                     if (graph==17) { graph=4 }      //comprueba si graph es 17 para cambiarlo a 4
-                    sprite.texture = getImage(graph)
                     anima = 4
                 }
 
@@ -175,15 +167,14 @@ class TitleScene() : SceneBase() {
     {
         override suspend fun main() {
             var anima = 0
-            var graph = 22
+            graph = 22
 
             position(340,160)
 
-            val sprite = image(getImage(graph)) {
-                anchor(0.5, 0.5)
-                scale(1.0,1.0)
-                smoothing = false
-            }
+            anchor(0.5, 0.5)
+            scale(1.0,1.0)
+            smoothing = false
+
 
             loop {
                 if (anima==0) {       //comprueba si anima es 0
@@ -206,7 +197,6 @@ class TitleScene() : SceneBase() {
                         graph=22
                     }     //incrementa x+3 y comprueba si es mayor que 340 y cambia de graph y de anima
                 }
-                sprite.texture = getImage(graph)
                 frame()
             }
         }
