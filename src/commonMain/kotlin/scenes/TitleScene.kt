@@ -6,6 +6,7 @@ import com.soywiz.korge.input.onKeyDown
 import com.soywiz.korge.input.onKeyUp
 import com.soywiz.korge.time.delay
 import com.soywiz.korge.view.*
+import com.soywiz.korio.async.launchAsap
 import com.soywiz.korio.async.launchImmediately
 import extensions.toBool
 import gameplay.*
@@ -49,8 +50,8 @@ class TitleScene() : SceneBase() {
 
     inner class inicio:Process(sceneView) {
         override suspend fun main() {
-            launchImmediately {
-                with(foto(30,160,119,100,100,0)){ //llamada para crear imagen del fondo
+            with(foto(30,160,119,100,100,0)){ //llamada para crear imagen del fondo
+                launchAsap {
                     loop {
                         scaleX = 1.0
                         delay(0.25.seconds)

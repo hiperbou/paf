@@ -4,12 +4,14 @@ package gameplay
 import com.soywiz.klock.milliseconds
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.time.delay
-import com.soywiz.korge.view.*
-import com.soywiz.korim.bitmap.*
-import com.soywiz.korim.format.BMP
-import com.soywiz.korio.async.async
-import com.soywiz.korio.async.launchAsap
-import com.soywiz.korio.async.launchImmediately
+import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.Image
+import com.soywiz.korim.bitmap.Bitmap32
+import com.soywiz.korim.bitmap.BmpSlice
+import com.soywiz.korim.bitmap.slice
+import com.soywiz.korio.async.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import resources.Resources
 
 
@@ -65,7 +67,14 @@ abstract class Process(parent: Container) : Image(emptyImage) {
         }
     }
 
-    suspend fun <T>async(callback: suspend () -> T) = currentScene.async(callback)
+    fun launch(callback: suspend () -> Unit) = currentScene.launch(callback)
+    fun launchImmediately(callback: suspend () -> Unit) = currentScene.launchImmediately(callback)
+    fun launchAsap(callback: suspend () -> Unit) = currentScene.launchAsap(callback)
+
+    fun <T>async(callback: suspend () -> T) = currentScene.async(callback)
+    fun <T>asyncImmediately(callback: suspend () -> T) = currentScene.asyncImmediately(callback)
+    fun <T>asyncAsap(callback: suspend () -> T) = currentScene.asyncAsap(callback)
+
 
 }
 
