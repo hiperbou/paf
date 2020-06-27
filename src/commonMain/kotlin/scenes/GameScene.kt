@@ -152,7 +152,7 @@ class GameScene() : SceneBase() {
             if(escenario<9) {
                 launchImmediately {
                     currentGameState.pauseBalls = true
-                    val getReady = text("Escenario ${escenario}", 24.0, font = Resources.font).position(64, 100)
+                    val getReady = text("Escenario ${escenario+1}", 24.0, font = Resources.font).position(64, 100)
                     sleep(2.seconds)
                     currentGameState.pauseBalls = false
                     getReady.removeFromParent()
