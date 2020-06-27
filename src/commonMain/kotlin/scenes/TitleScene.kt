@@ -73,10 +73,7 @@ class TitleScene() : SceneBase() {
             pulsaIntro()
 
             delay(1.seconds)
-            //sceneContainer.changeTo<LoadingScene>()
-            //sceneContainer.changeTo<TransitionScene>()
 
-            var counter = 0
             var key = 0
 
             //onKeyDown { key = key.setBits(getButtonPressed(it)) }
@@ -84,11 +81,8 @@ class TitleScene() : SceneBase() {
             onKeyUp { key = key.unsetBits(getButtonPressed(it)) }
 
             loop {
-                //counter++
-                //println("this shouldn't be called in another scene $counter")
-                //delay(1.seconds)
                 if ((key and (BUTTON_A or BUTTON_B or BUTTON_C or BUTTON_START)).toBool()){
-                    sceneContainer.changeTo<TransitionGameScene>()
+                    sceneContainer.changeTo<GameScene>()
                 }
 
                 frame()
