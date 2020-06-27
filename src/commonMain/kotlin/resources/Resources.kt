@@ -42,7 +42,6 @@ class Resources(private val views: Views) {
         loadedGfx = true
 
         pafAtlas = resourcesVfs["fpg.atlas.json"].readAtlas(views)
-        arrow = resourcesVfs["fpg/020.png"].readBitmap().slice()
         font = resourcesVfs["texts/I-pixel-u.fnt"].readBitmapFont()
 
         botaSound = resourcesVfs["bota.wav"].readNativeSound(false)

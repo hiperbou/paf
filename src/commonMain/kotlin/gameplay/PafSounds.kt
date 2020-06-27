@@ -28,6 +28,6 @@ class PafSounds (
 
     fun playMusic() {
         if(mute) return
-        music.play()
+        music.playForever()
     }
 }
