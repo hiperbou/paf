@@ -24,7 +24,7 @@ private val imageCache = mutableMapOf<Int, BmpSlice>()
 fun getImage(graph:Int): BmpSlice {
     return imageCache.getOrPut(graph) {
         return if(graph==0) Process.emptyImage.slice() else
-        Resources.pafAtlas["${graph.toString().padStart(3, '0')}.png"].texture
+        Resources.pafAtlas["${graph.toString().padStart(3, '0')}.png"]//.texture
     }
 }
 
