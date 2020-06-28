@@ -33,31 +33,34 @@ class GameScene() : SceneBase() {
 
         currentGameState.resetCollisions()
 
+        inicio()
+    }
 
-        foto(31,160,120,100,100,0)     //llamada para crear imagen del fondo
-        foto(9,120,224,100,80,0)       //llamada para crear imagen del suelo
-        foto(19,284,84,100,10,0)      //llamada para crear imagen de las vidas
-        controlador()     //llamamos a un proceso para controlar la barra de vidas
-        foto(8,282,120,100,0,0)        //llamada para crear imagen del marcador
+    inner class inicio():Process(sceneView){
+        override suspend fun main() {
+            foto(31, 160, 120, 100, 100, 0)     //llamada para crear imagen del fondo
+            foto(9, 120, 224, 100, 80, 0)       //llamada para crear imagen del suelo
+            foto(19, 284, 84, 100, 10, 0)      //llamada para crear imagen de las vidas
+            controlador(this)     //llamamos a un proceso para controlar la barra de vidas
+            foto(8, 282, 120, 100, 0, 0)        //llamada para crear imagen del marcador
 
+            //write_int(1,284,120,4,offset puntos);
+            scoreText = text("000000", 10.0, font = Resources.font).position(260, 112)
+            //write_int(1,284,157,4,offset record);
+            recordText = text("000000", 10.0, font = Resources.font).position(260, 149)
+            updateScore()
+            updateRecord()
 
-        //write_int(1,284,120,4,offset puntos);
-        scoreText = text("000000", 10.0, font = Resources.font).position(260, 112)
-        //write_int(1,284,157,4,offset record);
-        recordText = text("000000", 10.0, font = Resources.font).position(260, 149)
-        updateScore()
-        updateRecord()
+            prota(120 /*,key_left,key_right,key_a*/)
 
-        prota(120 /*,key_left,key_right,key_a*/)
+            with(currentGameState) {
+                when (escenario) {
+                    0 -> {
+                        bolas_total = 14
+                        bola(12, 100, 100, 100, 0, 1, 1)
+                        bola(12, 140, 100, 100, 0, 2, 1)
 
-        with(currentGameState){
-            when(escenario) {
-                0-> {
-                    bolas_total = 14
-                    bola(12, 100, 100, 100, 0, 1, 1)
-                    bola(12, 140, 100, 100, 0, 2, 1)
-
-                    /*bola(10,100,100,100,0,1,1)
+                        /*bola(10,100,100,100,0,1,1)
                     bola(10,140,100,100,0,2,1)
 
                     bola(14,100,100,100,0,1,1)
@@ -65,120 +68,120 @@ class GameScene() : SceneBase() {
 
                     bola(16,100,100,100,0,1,1)
                     bola(16,140,100,100,0,2,1)*/
-                }
-                1->{
-                    bolas_total=14
+                    }
+                    1 -> {
+                        bolas_total = 14
 
-                    bola(10,100,100,100,0,1,1)
-                    bola(10,140,100,100,0,2,1)
-                }
-                2->{
-                    bolas_total=14
+                        bola(10, 100, 100, 100, 0, 1, 1)
+                        bola(10, 140, 100, 100, 0, 2, 1)
+                    }
+                    2 -> {
+                        bolas_total = 14
 
-                    bola(14,100,100,100,0,1,1)
-                    bola(14,140,100,100,0,2,1)
-                }
-                3->{
-                    bolas_total=20
+                        bola(14, 100, 100, 100, 0, 1, 1)
+                        bola(14, 140, 100, 100, 0, 2, 1)
+                    }
+                    3 -> {
+                        bolas_total = 20
 
-                    bola(12,70,100,100,0,1,1)
-                    bola(14,105,80,50,0,2,1)
-                    bola(14,135,80,50,0,1,1)
-                    bola(12,170,100,100,0,2,1)
-                }
-                4->{
-                    bolas_total=28
+                        bola(12, 70, 100, 100, 0, 1, 1)
+                        bola(14, 105, 80, 50, 0, 2, 1)
+                        bola(14, 135, 80, 50, 0, 1, 1)
+                        bola(12, 170, 100, 100, 0, 2, 1)
+                    }
+                    4 -> {
+                        bolas_total = 28
 
-                    bola(14,40,40,100,0,2,1)
-                    bola(14,40,180,100,0,2,2)
-                    bola(14,200,40,100,0,1,1)
-                    bola(14,200,180,100,0,1,2)
-                }
-                5->{
-                    bolas_total=35
+                        bola(14, 40, 40, 100, 0, 2, 1)
+                        bola(14, 40, 180, 100, 0, 2, 2)
+                        bola(14, 200, 40, 100, 0, 1, 1)
+                        bola(14, 200, 180, 100, 0, 1, 2)
+                    }
+                    5 -> {
+                        bolas_total = 35
 
-                    bola(12,40,100,100,0,1,1)
-                    bola(12,80,80,100,0,2,1)
-                    bola(12,120,100,100,0,1,1)
-                    bola(12,160,80,100,0,2,1)
-                    bola(12,200,100,100,0,1,1)
-                }
-                6->{
-                    bolas_total=28
+                        bola(12, 40, 100, 100, 0, 1, 1)
+                        bola(12, 80, 80, 100, 0, 2, 1)
+                        bola(12, 120, 100, 100, 0, 1, 1)
+                        bola(12, 160, 80, 100, 0, 2, 1)
+                        bola(12, 200, 100, 100, 0, 1, 1)
+                    }
+                    6 -> {
+                        bolas_total = 28
 
-                    bola(14,40,180,100,0,2,2)
-                    bola(14,200,180,100,0,1,2)
-                    bola(10,40,60,100,0,2,1)
-                    bola(10,200,60,100,0,1,1)
-                }
-                7->{
-                    bolas_total=22
+                        bola(14, 40, 180, 100, 0, 2, 2)
+                        bola(14, 200, 180, 100, 0, 1, 2)
+                        bola(10, 40, 60, 100, 0, 2, 1)
+                        bola(10, 200, 60, 100, 0, 1, 1)
+                    }
+                    7 -> {
+                        bolas_total = 22
 
-                    bola(14,40,100,25,0,1,2)
-                    bola(10,60,100,50,0,1,1)
-                    bola(12,100,100,100,0,1,1)
-                    bola(12,140,100,100,0,2,1)
-                    bola(10,180,100,50,0,2,1)
-                    bola(14,200,100,25,0,2,2)
-                }
-                8->{
-                    bolas_total=42
+                        bola(14, 40, 100, 25, 0, 1, 2)
+                        bola(10, 60, 100, 50, 0, 1, 1)
+                        bola(12, 100, 100, 100, 0, 1, 1)
+                        bola(12, 140, 100, 100, 0, 2, 1)
+                        bola(10, 180, 100, 50, 0, 2, 1)
+                        bola(14, 200, 100, 25, 0, 2, 2)
+                    }
+                    8 -> {
+                        bolas_total = 42
 
-                    bola(14,20,60,100,0,1,2)
-                    bola(12,60,80,100,0,1,1)
-                    bola(10,100,100,100,0,1,1)
-                    bola(10,140,100,100,0,2,1)
-                    bola(12,180,80,100,0,2,1)
-                    bola(14,220,60,100,0,2,2)
-                }
+                        bola(14, 20, 60, 100, 0, 1, 2)
+                        bola(12, 60, 80, 100, 0, 1, 1)
+                        bola(10, 100, 100, 100, 0, 1, 1)
+                        bola(10, 140, 100, 100, 0, 2, 1)
+                        bola(12, 180, 80, 100, 0, 2, 1)
+                        bola(14, 220, 60, 100, 0, 2, 2)
+                    }
 
-                else-> {
-                    launchImmediately {
-                        bolas_total = -1
+                    else -> {
+                        launchImmediately {
+                            bolas_total = -1
 
-                        val felicidades = text("Felicidades", 24.0, font = Resources.font).position(64, 100)
-                        sleep(1.seconds)
-                        felicidades.removeFromParent()
+                            val felicidades = text("Felicidades", 24.0, font = Resources.font).position(64, 100)
+                            sleep(1.seconds)
+                            felicidades.removeFromParent()
 
-                        val record = text("Escenario Record", 24.0, font = Resources.font).position(32, 100)
-                        sleep(2.seconds)
-                        record.removeFromParent()
+                            val record = text("Escenario Record", 24.0, font = Resources.font).position(32, 100)
+                            sleep(2.seconds)
+                            record.removeFromParent()
 
-                        controlador_de_bolas()
+                            controlador_de_bolas()
+                        }
                     }
                 }
-            }
 
-            if(escenario<9) {
-                launchImmediately {
-                    currentGameState.pauseBalls = true
-                    val getReady = text("Escenario ${escenario+1}", 24.0, font = Resources.font).position(64, 100)
-                    sleep(2.seconds)
-                    currentGameState.pauseBalls = false
-                    getReady.removeFromParent()
-                }
-            }
-
-            loop {
-                if (puntos> record) {
-                    record = puntos
-                    updateRecord()
-                }
-                if (bolas_total == 0) {
-                    escenario = escenario + 1
-                    println("FINISHED!")
-                    sleep(2.seconds)
-                    sceneContainer.changeTo<GameScene>()
+                if (escenario < 9) {
+                    launchImmediately {
+                        currentGameState.pauseBalls = true
+                        val getReady = text("Escenario ${escenario + 1}", 24.0, font = Resources.font).position(64, 100)
+                        sleep(2.seconds)
+                        currentGameState.pauseBalls = false
+                        getReady.removeFromParent()
+                    }
                 }
 
-                //if (key(key_select)==1)then  inicio();end     //si pulsas la tecla esc, saldremos del juego hacia la presentacion con la llamada a inicio()
+                loop {
+                    if (puntos > record) {
+                        record = puntos
+                        updateRecord()
+                    }
+                    if (bolas_total == 0) {
+                        escenario = escenario + 1
+                        println("FINISHED!")
+                        sleep(2.seconds)
+                        sceneContainer.changeTo<GameScene>()
+                    }
 
-                frame()
+                    //if (key(key_select)==1)then  inicio();end     //si pulsas la tecla esc, saldremos del juego hacia la presentacion con la llamada a inicio()
+
+                    frame()
+                }
             }
         }
-
-
     }
+
 
 
     fun updateScore(){
@@ -424,7 +427,6 @@ class GameScene() : SceneBase() {
         }
     }
 
-
     inner class explota(val initialGraph:Int, val initialX:Int, val initialY:Int, val size_x: Double, val z:Int):Process(sceneView) {
         override suspend fun main() {
             //play_wav(sfx1,0)
@@ -594,7 +596,7 @@ class GameScene() : SceneBase() {
         }
     }
 
-    inner class controlador:Process(sceneView) {
+    inner class controlador(parent:Container):Process(parent) {
         override suspend fun main() {
             graph=32       //este graph sera el que tapa la barra de porcentaje y de vidas
             var z=5        //la z de las vidas y de porcentaje es de 10 y la del grafico de marcador 0 este se pone entre ambos para que tape el de las vidas y el del porcentaje

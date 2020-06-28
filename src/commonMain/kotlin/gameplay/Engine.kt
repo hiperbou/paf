@@ -1,11 +1,15 @@
 package gameplay
 
 
+import com.soywiz.klock.Frequency
 import com.soywiz.klock.milliseconds
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.time.delay
+import com.soywiz.korge.time.delayFrame
+import com.soywiz.korge.time.waitFrame
 import com.soywiz.korge.view.Container
 import com.soywiz.korge.view.Image
+import com.soywiz.korge.view.addFixedUpdater
 import com.soywiz.korim.bitmap.Bitmap32
 import com.soywiz.korim.bitmap.BmpSlice
 import com.soywiz.korim.bitmap.slice
@@ -13,12 +17,8 @@ import com.soywiz.korio.async.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import resources.Resources
-
-
-suspend fun Container.frame() {
-    delay(41.milliseconds)
-}
-
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 private val imageCache = mutableMapOf<Int, BmpSlice>()
 fun getImage(graph:Int): BmpSlice {
@@ -64,6 +64,22 @@ abstract class Process(parent: Container) : Image(emptyImage) {
     inline fun loop(block:()->Unit) {
         while(true) {
             block()
+        }
+    }
+
+    private val frameReady = Signal<Unit>()
+    private var frameListenerInitialized = false
+
+    suspend fun Container.frame() = suspendCoroutine<Unit> { cont ->
+        if(!frameListenerInitialized) {
+            frameListenerInitialized = true
+            addFixedUpdater(Frequency(24.0)) {
+                frameReady.invoke()
+            }
+        }
+        launchImmediately {
+            frameReady.waitOneBase()
+            cont.resume(Unit)
         }
     }
 
