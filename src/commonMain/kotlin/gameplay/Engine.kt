@@ -1,19 +1,20 @@
 package gameplay
 
 
-import com.soywiz.klock.Frequency
-import com.soywiz.klock.milliseconds
-import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.time.delay
-import com.soywiz.korge.time.delayFrame
-import com.soywiz.korge.time.waitFrame
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.Image
-import com.soywiz.korge.view.addFixedUpdater
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.BmpSlice
-import com.soywiz.korim.bitmap.slice
-import com.soywiz.korio.async.*
+import korlibs.image.bitmap.*
+import korlibs.image.format.readBitmapSlice
+import korlibs.io.async.*
+import korlibs.io.file.VfsFile
+import korlibs.io.resources.Resourceable
+import korlibs.korge.render.RenderContext
+import korlibs.korge.scene.Scene
+import korlibs.korge.view.*
+import korlibs.korge.view.Image
+import korlibs.korge.view.property.ViewProperty
+import korlibs.korge.view.property.ViewPropertyFileRef
+import korlibs.math.geom.Anchor
+import korlibs.math.geom.vector.VectorPath
+import korlibs.time.Frequency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import resources.Resources
@@ -37,20 +38,35 @@ abstract class SceneBase:Scene()
     }
 }
 
-
-abstract class Process(parent: Container) : Image(emptyImage) {
+//abstract class Process(parent: Container) : OpenImage(emptyImage) {
+abstract class Process(parent: Container) : Container(), Anchorable {
     companion object {
         val emptyImage = Bitmap32(1,1)
     }
+
+    override var anchor: Anchor = Anchor.TOP_LEFT
+    var bitmap: BmpSlice? = null
+    var smoothing: Boolean = false
 
     private var _graph = 0
     var graph:Int
         get() =  _graph
         set(value) {
             _graph = value
-            texture = getImage(value)
+            bitmap = getImage(value)
         }
 
+    override fun renderInternal(ctx: RenderContext) {
+        ctx.useBatcher { batch ->
+            val bitmap = this@Process.bitmap
+            if (bitmap != null) {
+                val px = bitmap.width * anchor.sx
+                val py = bitmap.height * anchor.sy
+                batch.drawQuad(ctx.getTex(bitmap), -px, -py, filtering = smoothing, blendMode = renderBlendMode, m = globalMatrix)
+            }
+        }
+        super.renderInternal(ctx)
+    }
 
     init {
         parent.addChild(this)

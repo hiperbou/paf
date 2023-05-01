@@ -1,6 +1,6 @@
 package scenes
 
-import com.soywiz.korge.view.*
+import korlibs.korge.view.*
 import gameplay.Process
 import gameplay.getImage
 /*

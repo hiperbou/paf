@@ -1,25 +1,26 @@
 package scenes
 
-import com.soywiz.klock.seconds
-import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.scene.sleep
-import com.soywiz.korge.tween.get
-import com.soywiz.korge.tween.tween
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.image
-import com.soywiz.korim.bitmap.BmpSlice
-import com.soywiz.korim.bitmap.slice
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.format.readBitmap
-import com.soywiz.korio.async.async
-import com.soywiz.korio.async.launchImmediately
-import com.soywiz.korio.file.std.resourcesVfs
-import com.soywiz.korma.interpolation.Easing
+import korlibs.time.seconds
+import korlibs.korge.scene.Scene
+import korlibs.korge.tween.get
+import korlibs.korge.tween.tween
+import korlibs.korge.view.Container
+import korlibs.korge.view.image
+import korlibs.image.bitmap.BmpSlice
+import korlibs.image.bitmap.slice
+import korlibs.image.color.Colors
+import korlibs.image.format.readBitmap
+import korlibs.io.async.async
+import korlibs.io.async.launchImmediately
+import korlibs.io.file.std.resourcesVfs
+import korlibs.korge.scene.delay
+import korlibs.korge.view.SContainer
+import korlibs.math.interpolation.Easing
 import resources.Resources
 
 class LoadingScene() : Scene() {
 
-    override suspend fun Container.sceneInit() {
+    override suspend fun SContainer.sceneInit() {
 
     }
 
@@ -27,10 +28,10 @@ class LoadingScene() : Scene() {
         super.sceneAfterInit()
         val splash = async { sceneView.splash() }
 
-        sleep(1.0.seconds)
+        delay(1.0.seconds)
         Resources(views).loadGfx()
 
-        sleep(3.0.seconds)
+        delay(3.0.seconds)
         Resources(views).loadMusic()
 
         Resources(views).setLoaded()
@@ -47,18 +48,18 @@ class LoadingScene() : Scene() {
         val anim = async {
             logo(map)
         }
-        sleep(1.seconds)
+        delay(1.seconds)
         views.clearColor = Colors.BLACK
         anim.await()
     }
 
     suspend fun Container.logo(graph:BmpSlice) {
         val image = image(graph){
-            alpha = 0.0
+            alpha = 0f
         }
 
         image.tween(image::alpha[1], time = 1.seconds, easing = Easing.EASE_IN_OUT)
-        sleep(1.seconds)
+        delay(1.seconds)
         image.tween(image::alpha[0], time = 1.seconds, easing = Easing.EASE_IN_OUT)
     }
 

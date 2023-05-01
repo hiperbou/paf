@@ -1,20 +1,17 @@
 package scenes
 
-import com.soywiz.klock.seconds
-import com.soywiz.kmem.setBits
-import com.soywiz.kmem.unsetBits
-import com.soywiz.korge.input.onKeyDown
-import com.soywiz.korge.input.onKeyUp
-import com.soywiz.korge.scene.sleep
-import com.soywiz.korge.view.*
-import com.soywiz.korio.async.launchImmediately
-
+import korlibs.time.seconds
+import korlibs.memory.setBits
+import korlibs.memory.unsetBits
+import korlibs.korge.view.*
 import extensions.toBool
 import gameplay.*
 import input.BUTTON_A
 import input.BUTTON_LEFT
 import input.BUTTON_RIGHT
 import input.getButtonPressed
+import korlibs.korge.input.keys
+import korlibs.korge.scene.delay
 import resources.Resources
 
 class GameScene() : SceneBase() {
@@ -26,7 +23,7 @@ class GameScene() : SceneBase() {
 
     lateinit var pafSounds:PafSounds
 
-    override suspend fun Container.sceneInit() {
+    override suspend fun SContainer.sceneInit() {
         Resources(views).loadAll()
 
         pafSounds = PafSounds(Resources.disparoSound,Resources.botaSound, Resources.pafSound, Resources.music)
@@ -45,9 +42,9 @@ class GameScene() : SceneBase() {
             foto(8, 282, 120, 100, 0, 0)        //llamada para crear imagen del marcador
 
             //write_int(1,284,120,4,offset puntos);
-            scoreText = text("000000", 10.0, font = Resources.font).position(260, 112)
+            scoreText = text("000000", 10f, font = Resources.font).position(260, 112)
             //write_int(1,284,157,4,offset record);
-            recordText = text("000000", 10.0, font = Resources.font).position(260, 149)
+            recordText = text("000000", 10f, font = Resources.font).position(260, 149)
             updateScore()
             updateRecord()
 
@@ -139,12 +136,12 @@ class GameScene() : SceneBase() {
                         launchImmediately {
                             bolas_total = -1
 
-                            val felicidades = text("Felicidades", 24.0, font = Resources.font).position(64, 100)
-                            sleep(1.seconds)
+                            val felicidades = text("Felicidades", 24f, font = Resources.font).position(64, 100)
+                            delay(1.seconds)
                             felicidades.removeFromParent()
 
-                            val record = text("Escenario Record", 24.0, font = Resources.font).position(32, 100)
-                            sleep(2.seconds)
+                            val record = text("Escenario Record", 24f, font = Resources.font).position(32, 100)
+                            delay(2.seconds)
                             record.removeFromParent()
 
                             controlador_de_bolas()
@@ -155,8 +152,8 @@ class GameScene() : SceneBase() {
                 if (escenario < 9) {
                     launchImmediately {
                         currentGameState.pauseBalls = true
-                        val getReady = text("Escenario ${escenario + 1}", 24.0, font = Resources.font).position(64, 100)
-                        sleep(2.seconds)
+                        val getReady = text("Escenario ${escenario + 1}", 24f, font = Resources.font).position(64, 100)
+                        delay(2.seconds)
                         currentGameState.pauseBalls = false
                         getReady.removeFromParent()
                     }
@@ -170,7 +167,7 @@ class GameScene() : SceneBase() {
                     if (bolas_total == 0) {
                         escenario = escenario + 1
                         println("FINISHED!")
-                        sleep(2.seconds)
+                        delay(2.seconds)
                         sceneContainer.changeTo<GameScene>()
                     }
 
@@ -208,7 +205,7 @@ class GameScene() : SceneBase() {
             var id_disp: disparo? = null        //variable para identificar si colisiona con el disparo del prota
 
             position(initialX, initialY)
-            anchor(0.5, 1)
+            anchor(0.5f, 1f)
             scale(size_x, size_x)
             smoothing = false
 
@@ -231,14 +228,14 @@ class GameScene() : SceneBase() {
                     if (anima_x == 1) {
                         x -= 3
                         if (x < 10) {
-                            x = 10.0
+                            x = 10f
                             anima_x = 2
                         }
                     }
                     if (anima_x == 2) {
                         x += 3
                         if (x > 230) {
-                            x = 230.0
+                            x = 230f
                             anima_x = 1
                         }
                     }
@@ -251,7 +248,7 @@ class GameScene() : SceneBase() {
                         if (y > 222) {
                             /*play_wav(sfx0,0);*/
                             pafSounds.playBota()
-                            y = 222.0
+                            y = 222f
                             anima_y = 2
                         }
                     }
@@ -277,14 +274,14 @@ class GameScene() : SceneBase() {
                     if (anima_x == 1) {
                         x -= 1
                         if (x < 10) {
-                            x = 10.0
+                            x = 10f
                             anima_x = 2
                         }
                     }
                     if (anima_x == 2) {
                         x += 1
                         if (x > 230) {
-                            x = 230.0
+                            x = 230f
                             anima_x = 1
                         }
                     }
@@ -296,7 +293,7 @@ class GameScene() : SceneBase() {
                         }
                         if (y > 222) { /*play_wav(sfx0,0)*/
                             pafSounds.playBota()
-                            y = 222.0
+                            y = 222f
                             anima_y = 2
                         }
                     }
@@ -322,28 +319,28 @@ class GameScene() : SceneBase() {
                     if (anima_x == 1) {
                         x -= 2
                         if (x < 10) {
-                            x = 10.0
+                            x = 10f
                             anima_x = 2
                         }
                     }
                     if (anima_x == 2) {
                         x += 2
                         if (x > 230) {
-                            x = 230.0
+                            x = 230f
                             anima_x = 1
                         }
                     }
                     if (anima_y == 1) {
                         y += 2
                         if (y > 222) {
-                            y = 222.0
+                            y = 222f
                             anima_y = 2
                         }
                     }
                     if (anima_y == 2) {
                         y -= 2
                         if (y < 20) {
-                            y = 20.0
+                            y = 20f
                             anima_y = 1
                         }
                     }
@@ -361,28 +358,28 @@ class GameScene() : SceneBase() {
                     if (anima_x == 1) {
                         x -= 4
                         if (x < 10) {
-                            x = 10.0
+                            x = 10f
                             anima_x = 2
                         }
                     }
                     if (anima_x == 2) {
                         x += 4
                         if (x > 230) {
-                            x = 230.0
+                            x = 230f
                             anima_x = 1
                         }
                     }
                     if (anima_y == 1) {
                         y += 4
                         if (y > 222) {
-                            y = 222.0
+                            y = 222f
                             anima_y = 2
                         }
                     }
                     if (anima_y == 2) {
                         y -= 4
                         if (y < 20) {
-                            y = 20.0
+                            y = 20f
                             anima_y = 1
                         }
                     }
@@ -438,10 +435,10 @@ class GameScene() : SceneBase() {
             smoothing = false
 
             loop {
-                scaleX -= 0.20       //disminuye el tama�o con size a -20
-                scaleY -= 0.20
+                scaleX -= 0.20f       //disminuye el tama�o con size a -20
+                scaleY -= 0.20f
 
-                if (scaleX < 1) alpha = 0.5   //comprueba si size es menor de 100 para poner la explosion trasparente
+                if (scaleX < 1) alpha = 0.5f   //comprueba si size es menor de 100 para poner la explosion trasparente
                 if (scaleX < 0.01) removeFromParent() //break      //comprueba si size es menor de 10 para quitar el proceso
 
                 frame()
@@ -464,8 +461,10 @@ class GameScene() : SceneBase() {
 
             var key = 0
 
-            onKeyDown { key = key.setBits(getButtonPressed(it)) }
-            onKeyUp { key = key.unsetBits(getButtonPressed(it)) }
+            keys {
+                down { key = key.setBits(getButtonPressed(it)) }
+                up { key = key.unsetBits(getButtonPressed(it)) }
+            }
 
             val k_left = BUTTON_LEFT
             val k_right = BUTTON_RIGHT
@@ -534,10 +533,10 @@ class GameScene() : SceneBase() {
 
                 inmune += 1        //incrementa inmune+1
                 if (inmune < 60) {
-                    alpha = 0.5
+                    alpha = 0.5f
                 }      //comprueba si inmune es menor de 50, si es menor pone al protagonista trasparente para que se vea que es inmune
                 if (inmune >= 60) {     //comprueba si inmune es mayor o igual de 50, si es mayor pondremos la colision para que el protagonista sea vulnerable
-                    alpha = 1.0        //si es mayor o igual le quita la trasparencia al protagonista y lo pone normal
+                    alpha = 1.0f        //si es mayor o igual le quita la trasparencia al protagonista y lo pone normal
                     //if(fcollision_cc2(id.idspr,2,0)!=0) {
                     val col = currentGameState.ballCollision.colidesWith(this, 15, -15)
                     if (col != null && col.alive) {
@@ -553,7 +552,7 @@ class GameScene() : SceneBase() {
                             //frame(2400)
                             println("GAME OVER")
                             currentGameState.pauseBalls = true
-                            sleep(1.seconds)
+                            delay(1.seconds)
                             sceneContainer.changeTo<TitleScene>()
                             //inicio()
                         }     //comprueba si vidas es menor o igual a -1, si es igual o menor a -1 quiere decir que te han quitado todas las vidas y volveras a inicio del programa con la llamada inicio()
@@ -589,7 +588,7 @@ class GameScene() : SceneBase() {
                     destroy()
                 }      //va incrementado y-6 si no ha tocado ninguna bola saldra de la pantalla y borramos el proceso con break
 
-                scaleX = if(scaleX == 1.0) -1.0 else 1.0
+                scaleX = if(scaleX == 1.0f) -1.0f else 1.0f
 
                 frame()
             }
@@ -601,18 +600,18 @@ class GameScene() : SceneBase() {
             graph=32       //este graph sera el que tapa la barra de porcentaje y de vidas
             var z=5        //la z de las vidas y de porcentaje es de 10 y la del grafico de marcador 0 este se pone entre ambos para que tape el de las vidas y el del porcentaje
 
-            position(0,84.0)
+            position(0f,84f)
             anchor(0.5, 0.5)
             smoothing = false
 
             loop {
                 val vidas = currentGameState.vidas
 
-                if (vidas == 4) x = 340.0
-                if (vidas == 3) x = 324.0     //si vidas es 3 o el protagonista tiene 3 vidas de juego, no tapara nada
-                if (vidas == 2) x = 309.0     //si vidas es 2 posaremos el graph 32 encima de la ultima vida
-                if (vidas == 1) x = 296.0     //si vidas es 1 posaremos el graph 32 encima de dos vidas mostrando solo 1 en pantalla
-                if (vidas == 0) x = 284.0     //si vidas es 0 se taparan todas las vidas
+                if (vidas == 4) x = 340f
+                if (vidas == 3) x = 324f     //si vidas es 3 o el protagonista tiene 3 vidas de juego, no tapara nada
+                if (vidas == 2) x = 309f     //si vidas es 2 posaremos el graph 32 encima de la ultima vida
+                if (vidas == 1) x = 296f     //si vidas es 1 posaremos el graph 32 encima de dos vidas mostrando solo 1 en pantalla
+                if (vidas == 0) x = 284f     //si vidas es 0 se taparan todas las vidas
 
                 frame()
             }
@@ -624,7 +623,7 @@ class GameScene() : SceneBase() {
         var posicion_x=0       //variable para la posicion x de la bola
         var tamano_bola=0      //variable para hacer el rand del tama�o de la bola
 
-        sleep(2.seconds)    //cuando inicia el juego esperamos un ratito antes de que salga las bolas
+        delay(2.seconds)    //cuando inicia el juego esperamos un ratito antes de que salga las bolas
 
         loop {
             grafico_bola=(0..3).random()     //hacemos un rando para que saque uno de los cuantro graficos de la bola
@@ -643,7 +642,7 @@ class GameScene() : SceneBase() {
             bola(grafico_bola,posicion_x,-20,tamano_bola,4,0,0)
 
             //los datos que mandamos al proceso bola son bola(graph,x,y,size,flags,anima_x,anima_y)
-            sleep(3.seconds)
+            delay(3.seconds)
         }
     }
 
