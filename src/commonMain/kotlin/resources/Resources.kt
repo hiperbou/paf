@@ -1,28 +1,24 @@
 package resources
 
-import com.soywiz.korau.sound.NativeSound
-import com.soywiz.korau.sound.readNativeSound
-import com.soywiz.korge.atlas.Atlas
-import com.soywiz.korge.atlas.readAtlas
-import com.soywiz.korge.view.Views
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.BitmapSlice
-import com.soywiz.korim.bitmap.slice
-import com.soywiz.korim.font.BitmapFont
-import com.soywiz.korim.font.readBitmapFont
-import com.soywiz.korim.format.readBitmap
-
-import com.soywiz.korio.file.std.resourcesVfs
+import korlibs.audio.sound.*
+import korlibs.image.atlas.Atlas
+import korlibs.image.atlas.readAtlas
+import korlibs.image.bitmap.Bitmap
+import korlibs.image.bitmap.BitmapSlice
+import korlibs.image.font.BitmapFont
+import korlibs.image.font.readBitmapFont
+import korlibs.io.file.std.resourcesVfs
+import korlibs.korge.view.Views
 
 class Resources(private val views: Views) {
     companion object{
         lateinit var pafAtlas: Atlas
         lateinit var arrow:BitmapSlice<Bitmap>
         lateinit var font: BitmapFont
-        lateinit var disparoSound: NativeSound
-        lateinit var botaSound: NativeSound
-        lateinit var pafSound: NativeSound
-        lateinit var music: NativeSound
+        lateinit var disparoSound: Sound
+        lateinit var botaSound: Sound
+        lateinit var pafSound: Sound
+        lateinit var music: Sound
 
         private var loaded = false
         private var loadedGfx = false
@@ -41,13 +37,13 @@ class Resources(private val views: Views) {
         if(loadedGfx) return
         loadedGfx = true
 
-        pafAtlas = resourcesVfs["fpg.atlas.json"].readAtlas(views)
+        pafAtlas = resourcesVfs["fpg.atlas.json"].readAtlas()
         font = resourcesVfs["texts/I-pixel-u.fnt"].readBitmapFont()
 
-        botaSound = resourcesVfs["bota.wav"].readNativeSound(false)
-        disparoSound = resourcesVfs["disparo.wav"].readNativeSound(false)
-        pafSound = resourcesVfs["paf.wav"].readNativeSound(false)
-        pafSound = resourcesVfs["paf.wav"].readNativeSound(false)
+        botaSound = resourcesVfs["bota.wav"].readSound()
+        disparoSound = resourcesVfs["disparo.wav"].readSound()
+        pafSound = resourcesVfs["paf.wav"].readSound()
+        pafSound = resourcesVfs["paf.wav"].readSound()
 
     }
 
@@ -55,7 +51,7 @@ class Resources(private val views: Views) {
         if(loadedMusic) return
         loadedMusic = true
 
-        music = resourcesVfs["music.mp3"].readNativeSound(true)
+        music = resourcesVfs["music.mp3"].readMusic()
     }
 
     fun setLoaded() {

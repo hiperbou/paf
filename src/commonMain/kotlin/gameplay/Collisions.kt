@@ -1,6 +1,6 @@
 package gameplay
 
-import com.soywiz.korge.view.View
+import korlibs.korge.view.View
 
 class Collisions<T:View> {
 

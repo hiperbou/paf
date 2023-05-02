@@ -1,16 +1,16 @@
 package scenes
 
-import com.soywiz.klock.seconds
-import com.soywiz.kmem.unsetBits
-import com.soywiz.korge.input.onKeyDown
-import com.soywiz.korge.input.onKeyUp
-import com.soywiz.korge.time.delay
-import com.soywiz.korge.view.*
-import com.soywiz.korio.async.launchAsap
-import com.soywiz.korio.async.launchImmediately
 import extensions.toBool
 import gameplay.*
 import input.*
+import korlibs.korge.input.keys
+import korlibs.korge.time.delay
+import korlibs.korge.view.SContainer
+import korlibs.korge.view.anchor
+import korlibs.korge.view.position
+import korlibs.korge.view.scale
+import korlibs.memory.unsetBits
+import korlibs.time.seconds
 import resources.Resources
 
 var musicPlaying = 0
@@ -22,7 +22,7 @@ class TitleScene() : SceneBase() {
     lateinit var pafSounds:PafSounds
 
 
-    override suspend fun Container.sceneInit() {
+    override suspend fun SContainer.sceneInit() {
 
         Resources(views).loadAll()
 
@@ -53,9 +53,9 @@ class TitleScene() : SceneBase() {
             with(foto(30,160,119,100,100,0)){ //llamada para crear imagen del fondo
                 launchAsap {
                     loop {
-                        scaleX = 1.0
+                        scaleX = 1f
                         delay(0.25.seconds)
-                        scaleX = -1.0
+                        scaleX = -1f
                         delay(0.25.seconds)
                     }
                 }
@@ -77,8 +77,10 @@ class TitleScene() : SceneBase() {
             var key = 0
 
             //onKeyDown { key = key.setBits(getButtonPressed(it)) }
-            onKeyDown { key = getButtonPressed(it) }
-            onKeyUp { key = key.unsetBits(getButtonPressed(it)) }
+            keys {
+                down { key = getButtonPressed(it) }
+                up { key = key.unsetBits(getButtonPressed(it)) }
+            }
 
             loop {
                 if ((key and (BUTTON_A or BUTTON_B or BUTTON_C or BUTTON_START)).toBool()){
@@ -121,7 +123,7 @@ class TitleScene() : SceneBase() {
                 if (anima==0) {      //comprueba si anima es 0
                     y += 6
                     if (y > 90) {
-                        y = 90.0
+                        y = 90f
                         anima = 1
                         pafSounds.playPaf()
                         //play_wav(sfx1,0);
@@ -129,13 +131,13 @@ class TitleScene() : SceneBase() {
                 }
                 if (anima==1) {      //comprueba si anima es 1
                     graph++
-                    scale = 2.0
+                    scaleAvg = 2f
                     anima=2     //si anima es 1 hara otra animacion a la anterior y pasara a anima=2 para no volver a repetirlo
                 }
                 if (anima==2) {      //comprueba si anima es 2
-                    scale -= 0.2
-                    if (scale < 0.5) {
-                        scale = 1.0
+                    scaleAvg -= 0.2f
+                    if (scaleAvg < 0.5) {
+                        scaleAvg = 1f
                         anima=3
                     }
                 }
@@ -171,7 +173,7 @@ class TitleScene() : SceneBase() {
                     if (graph>25){ graph=22 }        //incrementa graph+1 y comprueba si es mayor de 25 si es mayor inicia al grafico 22
                     x=x-3
                     if (x<-20){
-                        x=-20.0
+                        x=-20f
                         anima=1
                         graph=26
                     }     //resta x-3 y comprueba si es menor que -20 y cambia de graph y de anima
@@ -181,7 +183,7 @@ class TitleScene() : SceneBase() {
                     if (graph>29) { graph=26 }        //incrementa graph+1 y comprueba si es mayor de 29 si es mayor inicia al grafico 29
                     x=x+3
                     if (x>340){
-                        x=340.0
+                        x=340f
                         anima=0
                         graph=22
                     }     //incrementa x+3 y comprueba si es mayor que 340 y cambia de graph y de anima

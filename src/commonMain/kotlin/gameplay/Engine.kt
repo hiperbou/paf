@@ -1,19 +1,21 @@
 package gameplay
 
 
-import com.soywiz.klock.Frequency
-import com.soywiz.klock.milliseconds
-import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.time.delay
-import com.soywiz.korge.time.delayFrame
-import com.soywiz.korge.time.waitFrame
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.Image
-import com.soywiz.korge.view.addFixedUpdater
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.BmpSlice
-import com.soywiz.korim.bitmap.slice
-import com.soywiz.korio.async.*
+import korlibs.image.bitmap.*
+import korlibs.image.color.*
+import korlibs.image.format.readBitmapSlice
+import korlibs.io.async.*
+import korlibs.io.file.VfsFile
+import korlibs.io.resources.Resourceable
+import korlibs.korge.render.*
+import korlibs.korge.scene.Scene
+import korlibs.korge.view.*
+import korlibs.korge.view.Image
+import korlibs.korge.view.property.ViewProperty
+import korlibs.korge.view.property.ViewPropertyFileRef
+import korlibs.math.geom.*
+import korlibs.math.geom.vector.VectorPath
+import korlibs.time.Frequency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import resources.Resources
@@ -37,20 +39,68 @@ abstract class SceneBase:Scene()
     }
 }
 
+class ImageData {
+    val vertices = TexturedVertexArray(4, TexturedVertexArray.QUAD_INDICES)
+    var baseBitmap: BitmapCoords = Bitmaps.white
+    var anchor: Anchor = Anchor.TOP_LEFT
+    val sLeft: Float get() = -anchorDispX
+    val sTop: Float get() = -anchorDispY
+    val sRight: Float get() = sLeft + bwidth
+    val sBottom: Float get() = sTop + bheight
+    val bwidth: Float get() = baseBitmap.width.toFloat()
+    val bheight: Float get() = baseBitmap.height.toFloat()
+    val frameOffsetX: Float get() = baseBitmap.frameOffsetX.toFloat()
+    val frameOffsetY: Float get() = baseBitmap.frameOffsetY.toFloat()
+    val frameWidth: Float get() = baseBitmap.frameWidth.toFloat()
+    val frameHeight: Float get() = baseBitmap.frameHeight.toFloat()
+    val anchorDispXNoOffset: Float get() = (anchor.sx * frameWidth)
+    val anchorDispYNoOffset: Float get() = (anchor.sy * frameHeight)
+    val anchorDispX: Float get() = (anchorDispXNoOffset - frameOffsetX)
+    val anchorDispY: Float get() = (anchorDispYNoOffset - frameOffsetY)
+    var smoothing: Boolean = true
+    var renderBlendMode: BlendMode = BlendMode.NORMAL
 
-abstract class Process(parent: Container) : Image(emptyImage) {
+    fun drawVertices(ctx: RenderContext) {
+        ctx.useBatcher { batch ->
+            //batch.texture1212
+            //batch.setTemporalUniforms(_programUniforms) {
+            batch.drawVertices(
+                vertices, ctx.getTex(baseBitmap).base, smoothing, renderBlendMode,
+            )
+            //}
+        }
+    }
+
+    fun computeVertices(globalMatrix: Matrix, renderColorMul: RGBA) {
+        vertices.quad(0, sLeft, sTop, bwidth, bheight, globalMatrix, baseBitmap, renderColorMul)
+    }
+
+}
+
+//abstract class Process(parent: Container) : OpenImage(emptyImage) {
+abstract class Process(parent: Container) : Container(), Anchorable {
     companion object {
         val emptyImage = Bitmap32(1,1)
     }
 
+    private val imageData = ImageData()
+    override var anchor: Anchor by imageData::anchor
+    var bitmap: BitmapCoords by imageData::baseBitmap
+    var smoothing: Boolean by imageData::smoothing
+
     private var _graph = 0
-    var graph:Int
+    var graph: Int
         get() =  _graph
         set(value) {
             _graph = value
-            texture = getImage(value)
+            bitmap = getImage(value)
         }
 
+    override fun renderInternal(ctx: RenderContext) {
+        imageData.computeVertices(globalMatrix, renderColorMul)
+        imageData.drawVertices(ctx)
+        super.renderInternal(ctx)
+    }
 
     init {
         parent.addChild(this)
